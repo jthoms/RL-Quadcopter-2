@@ -29,12 +29,15 @@ class Task():
     def get_reward(self):
         """Uses current pose of sim to return reward."""
         reward = 1000
-
-        error = np.sqrt((self.sim.pose[0]-self.target_pos[0])**2 + (self.sim.pose[1]-self.target_pos[1])**2 + (self.sim.pose[2]-self.target_pos[2])**2)
+        current_pos = self.sim.pose[:3]
+        error = np.sqrt(current_pos[0]**2 + current_pos[1]**2 + current_pos[2]**2)
         reward -= error
         
         if error < 10:
             reward += 100
+
+        # penalize velocity nearer the target
+        reward -= abs(abs(current_pos - self.target_pos).sum() - abs(self.sim.v).sum())
 
         return reward
 
